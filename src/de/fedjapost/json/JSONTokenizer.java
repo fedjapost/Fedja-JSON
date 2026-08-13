@@ -2,7 +2,7 @@ package de.fedjapost.json;
 
 import java.util.ArrayList;
 
-public class JSONTokenizer {
+class JSONTokenizer {
 
 	private String source;
 
@@ -26,23 +26,65 @@ public class JSONTokenizer {
 		pushToken(type, null);
 	}
 
+	private char getEscapedCharacter(char escaped) {
+		switch (escaped) {
+		case 'f':
+			return '\f';
+		case 'r':
+			return '\r';
+		case 'n':
+			return '\n';
+		case 't':
+			return '\t';
+		case '\\':
+			return '\\';
+		case '"':
+			return '"';
+
+		default:
+			return 0;
+		}
+	}
+
+	private boolean currentCharEquals(char ch) {
+		return (
+			source.charAt(counter) == ch
+		);
+	}
+
 	private void parseString() {
 		if (counter >= source.length() || source.charAt(counter) != '"')
 			return;
 		advanceCounter();
 
 		StringBuilder sb = new StringBuilder();
+		boolean closed = false;
 		while (counter < source.length()) {
 
-			if (source.charAt(counter) == '"')
+			if (source.charAt(counter) == '"') {
+				closed = true;
 				break;
+			}
 
-			if (counter + 1 < source.length() && source.charAt(counter) == '\\')
+			if (currentCharEquals('\n') || currentCharEquals('\r') || currentCharEquals('\t') || currentCharEquals('\f'))
+				throw new JSONException("Tokenizing\nParsing String\nIllegal Character");
+
+			if (counter + 1 < source.length() && source.charAt(counter) == '\\') {
 				advanceCounter();
+				char escaped = getEscapedCharacter(source.charAt(counter));
+				if (escaped == 0)
+					throw new JSONException("Tokenizing\nParsing String\ninvalid character escape in source");
+				sb.append(escaped);
+				advanceCounter();
+				continue;
+			}
+
 
 			sb.append(source.charAt(counter));
 			advanceCounter();
 		}
+		if (!closed)
+			throw new JSONException("Tokenizing\nParsing String\nmissing closing quote");
 		pushToken(JSONTokenType.STRING, sb.toString());
 		advanceCounter();
 	}
@@ -67,10 +109,19 @@ public class JSONTokenizer {
 			return;
 		}
 
-		if (counter >= source.length() || !(Character.isDigit(source.charAt(counter))))
+		if (counter >= source.length() || !(Character.isDigit(source.charAt(counter))) && source.charAt(counter) != '-')
 			return;
 
-		double value = 0; 
+		boolean negative = false;
+		if (source.charAt(counter) == '-') {
+			negative = true;
+			advanceCounter();
+			if (counter >= source.length() || !Character.isDigit(source.charAt(counter)))
+				throw new JSONException("Tokenizing\nParsing Number\nexpected digit after sign");
+		}
+
+		double value = 0;
+
 		while (counter < source.length() && Character.isDigit(source.charAt(counter))) {
 			value *= 10;
 			value += source.charAt(counter) - '0';
@@ -86,6 +137,9 @@ public class JSONTokenizer {
 			value += i * (source.charAt(counter) - '0');
 			advanceCounter();
 		}
+
+		if (negative)
+			value = -value;
 
 		pushToken(JSONTokenType.NUMBER, value);
 	}
@@ -130,9 +184,13 @@ public class JSONTokenizer {
 	}
 
 	private void parse() {
+		int before = counter;
 		parseOperator();
 		parseValue();
 		parseString();
+		int after = counter;
+		if (before == after)
+			throw new JSONException("Tokenizing\nUnrecognized Character at " + counter);
 	}
 
 	public JSONToken[] tokenize(String source) {

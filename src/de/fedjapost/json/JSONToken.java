@@ -1,6 +1,6 @@
 package de.fedjapost.json;
 
-public class JSONToken {
+class JSONToken {
 
 	private final Object value;
 

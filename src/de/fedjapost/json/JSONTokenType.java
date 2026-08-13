@@ -1,6 +1,6 @@
 package de.fedjapost.json;
 
-public enum JSONTokenType {
+enum JSONTokenType {
 	NULL,
 
 	BOOLEAN,

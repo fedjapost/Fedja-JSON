@@ -2,6 +2,13 @@ package de.fedjapost.json;
 
 class JSONStringer {
 
+	static String indentation(int level) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < level; ++i)
+			sb.append('\t');
+		return sb.toString();
+	}
+
 	static String stringify(String input) {
 
 		if (input == null)
@@ -13,14 +20,20 @@ class JSONStringer {
 
 		for (char c : input.toCharArray()) {
 			switch (c) {
+			case '\f':
+				sb.append("\\f");
+				break;
 			case '\t':
-				sb.append("\t");
+				sb.append("\\t");
 				break;
 			case '\r':
-				sb.append("\r");
+				sb.append("\\r");
 				break;
 			case '\n':
-				sb.append("\n");
+				sb.append("\\n");
+				break;
+			case '\b':
+				sb.append("\\b");
 				break;
 			case '\\':
 			case '"':
