@@ -75,7 +75,7 @@ public class JSONObject {
 	 */
 	JSONObject parseJSONObject(JSONToken[] tokens, int[] index, boolean root) {
 		if (tokens[index[0]++].getType() != JSONTokenType.OBJECT_START)
-			throw new JSONException("Parsing Object\nexpected '{' operator at " + index[0]);
+			throw new JSONException("Encountered invalid token at " + index[0]);
 
 		if (tokens[index[0]].getType() == JSONTokenType.OBJECT_END)
 			return this;
@@ -83,12 +83,12 @@ public class JSONObject {
 		do {
 
 			if (tokens[index[0]].getType() != JSONTokenType.STRING)
-				throw new JSONException("Parsing Object\nexpected valid key at " + index[0]);
+				throw new JSONException("Encountered invalid token at " + index[0]);
 
 			String key = (String) tokens[index[0]++].getValue();
 
 			if (tokens[index[0]++].getType() != JSONTokenType.COLLON)
-				throw new JSONException("Parsing Object\nexpected ':' at " + index[0]);
+				throw new JSONException("Encountered invalid token at " + index[0]);
 
 			switch (tokens[index[0]].getType()) {
 			case NULL: case BOOLEAN: case NUMBER: case STRING:

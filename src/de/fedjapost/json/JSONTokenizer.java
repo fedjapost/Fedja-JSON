@@ -145,7 +145,7 @@ class JSONTokenizer {
 
 		double value = 0;
 
-		if (source.substring(counter).startsWith("00"))
+		if (source.substring(counter).startsWith("0") && !source.substring(counter).startsWith("0."))
 			throw new JSONException("Encountered invalid decimal notation in source.");
 
 		while (counter < source.length() && Character.isDigit(source.charAt(counter))) {
