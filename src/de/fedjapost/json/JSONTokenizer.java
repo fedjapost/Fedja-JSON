@@ -145,6 +145,9 @@ class JSONTokenizer {
 
 		double value = 0;
 
+		if (source.substring(counter).startsWith("00"))
+			throw new JSONException("Encountered invalid decimal notation in source.");
+
 		while (counter < source.length() && Character.isDigit(source.charAt(counter))) {
 			value *= 10;
 			value += source.charAt(counter) - '0';
@@ -156,6 +159,8 @@ class JSONTokenizer {
 			return;
 		} else advanceCounter();
 
+		if (counter >= source.length())
+			throw new IndexOutOfBoundsException();
 		for (double i = 0.1; counter < source.length() && Character.isDigit(source.charAt(counter)); i /= 10) {
 			value += i * (source.charAt(counter) - '0');
 			advanceCounter();
@@ -249,7 +254,7 @@ class JSONTokenizer {
 				arr[i] = tokens.get(i);
 
 			return arr;
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (IndexOutOfBoundsException e) {
 			throw new JSONException("Unexpectedly reached end of source while tokenizing JSON.");
 		}
 	}
