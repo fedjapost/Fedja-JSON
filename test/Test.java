@@ -8,8 +8,12 @@ public class Test {
 		System.out.println(arr);
 
 		try {
-			new JSONObject("[01]");
+			new JSONArray("[0.1]");
 		} catch (Exception e) {e.printStackTrace();}
+
+		String src =
+		"{\"yo\": \"no\", \"bro\": [67]}";
+		System.out.println(new JSONObject((new JSONObject(src)).format()).format());
 	}
 
 }

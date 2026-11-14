@@ -73,7 +73,7 @@ public class JSONArray {
 	 */
 	JSONArray parseJSONArray(JSONToken[] tokens, int[] index, boolean root) {
 		if (tokens[index[0]++].getType() != JSONTokenType.ARRAY_START)
-			throw new JSONException("Encountered invalid token at " + index[0]);
+			throw new JSONException("Encountered invalid token at " + index[0] + ".");
 
 		if (tokens[index[0]].getType() == JSONTokenType.ARRAY_END)
 			return this;
