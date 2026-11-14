@@ -20,7 +20,12 @@ public class JSONArray {
 	 */
 	public JSONArray(String source) {
 		array = new ArrayList<>();
-		parseJSONArray(new JSONTokenizer().tokenize(source), new int[1], true);
+		try {
+			parseJSONArray(new JSONTokenizer().tokenize(source), new int[1], true);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new JSONException("Unexpectedly reached end of source while parsing JSONArray.");
+		}
+
 	}
 
 	/**
@@ -92,10 +97,10 @@ public class JSONArray {
 		--index[0];
 
 		if (tokens[index[0]].getType() != JSONTokenType.ARRAY_END)
-			throw new JSONException("Parsing Array\nexpected ']' operator at " + index[0]);
+			throw new JSONException("Expected demilitation of JSONArray is absent.");
 
 		if (root && index[0] < tokens.length - 1)
-			throw new JSONException("Parsing Array\ntokens found after root");
+			throw new JSONException("Source did not end after delimitation of root JSONArray.");
 
 		return this;
 	}

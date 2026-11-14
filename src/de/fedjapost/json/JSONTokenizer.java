@@ -59,7 +59,7 @@ class JSONTokenizer {
 
 		StringBuilder sb = new StringBuilder();
 		boolean closed = false;
-		while (counter < source.length()) {
+		while (true) {
 
 			if (source.charAt(counter) == '"') {
 				closed = true;
@@ -69,11 +69,11 @@ class JSONTokenizer {
 			if (currentCharEquals('\n') || currentCharEquals('\r') || currentCharEquals('\t') || currentCharEquals('\f'))
 				throw new JSONException("Tokenizing\nParsing String\nIllegal Character");
 
-			if (counter + 1 < source.length() && source.charAt(counter) == '\\') {
+			if (source.charAt(counter) == '\\') {
 				advanceCounter();
 				char escaped = getEscapedCharacter(source.charAt(counter));
 				if (escaped == 0)
-					throw new JSONException("Tokenizing\nParsing String\ninvalid character escape in source");
+					throw new JSONException("Encountered string containing invalid character escape while tokenizing JSON.");
 				sb.append(escaped);
 				advanceCounter();
 				continue;
@@ -83,8 +83,6 @@ class JSONTokenizer {
 			sb.append(source.charAt(counter));
 			advanceCounter();
 		}
-		if (!closed)
-			throw new JSONException("Tokenizing\nParsing String\nmissing closing quote");
 		pushToken(JSONTokenType.STRING, sb.toString());
 		advanceCounter();
 	}
@@ -116,8 +114,6 @@ class JSONTokenizer {
 		if (source.charAt(counter) == '-') {
 			negative = true;
 			advanceCounter();
-			if (counter >= source.length() || !Character.isDigit(source.charAt(counter)))
-				throw new JSONException("Tokenizing\nParsing Number\nexpected digit after sign");
 		}
 
 		double value = 0;
@@ -190,21 +186,25 @@ class JSONTokenizer {
 		parseString();
 		int after = counter;
 		if (before == after)
-			throw new JSONException("Tokenizing\nUnrecognized Character at " + counter);
+			throw new JSONException("Encountered unrecongnized character while tokenizing JSON.");
 	}
 
 	public JSONToken[] tokenize(String source) {
-		this.source = source;
+		try {
+			this.source = source;
 
-		counter = 0;
-		while (counter < source.length())
-			parse();
+			counter = 0;
+			while (counter < source.length())
+				parse();
 
-		JSONToken[] arr = new JSONToken[tokens.size()];
-		for (int i = 0; i < arr.length; ++i)
-			arr[i] = tokens.get(i);
+			JSONToken[] arr = new JSONToken[tokens.size()];
+			for (int i = 0; i < arr.length; ++i)
+				arr[i] = tokens.get(i);
 
-		return arr;
+			return arr;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new JSONException("Unexpectedly reached end of source while tokenizing JSON.");
+		}
 	}
 
 }

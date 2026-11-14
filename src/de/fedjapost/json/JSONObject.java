@@ -23,7 +23,11 @@ public class JSONObject {
 	 */
 	public JSONObject(String source) {
 		object = new HashMap<>();
-		parseJSONObject(new JSONTokenizer().tokenize(source), new int[1], true);
+		try {
+			parseJSONObject(new JSONTokenizer().tokenize(source), new int[1], true);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new JSONException("Unexpectedly reached end of source while parsing JSONObject.");
+		}
 	}
 
 	/**
@@ -103,10 +107,11 @@ public class JSONObject {
 		--index[0];
 
 		if (tokens[index[0]].getType() != JSONTokenType.OBJECT_END)
-			throw new JSONException("Parsing Object\nexpected '}' operator at " + index[0]);
+			throw new JSONException("Expected demilitation of JSONObject is absent.");
+
 
 		if (root && index[0] < tokens.length - 1)
-			throw new JSONException("Parsing Array\ntokens found after root");
+			throw new JSONException("Source did not end after delimitation of root JSONObject.");
 
 		return this;
 	}
