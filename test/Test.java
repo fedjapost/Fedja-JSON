@@ -4,9 +4,8 @@ public class Test {
 
 
 	public static void main(String[] args) {
-		try {
-			new JSONObject("{");
-		} catch (Exception e) {e.printStackTrace();}
+		JSONArray arr = new JSONArray("[\"\u0025\"]");
+		System.out.println(arr);
 	}
 
 }

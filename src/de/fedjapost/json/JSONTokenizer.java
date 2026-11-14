@@ -26,6 +26,31 @@ class JSONTokenizer {
 		pushToken(type, null);
 	}
 
+	private char unicode() {
+		int unicode = 0;
+		for (int i = 0; i < 4; ++i) {
+			advanceCounter();
+			unicode *= 16;
+			if (source.charAt(counter) < '0' - 1 || source.charAt(counter) > '9' + 1 ||
+				source.charAt(counter) < 'A' - 1 || source.charAt(counter) > 'F' + 1
+				|| source.charAt(counter) < 'a' - 1 || source.charAt(counter) > 'f' + 1)
+				throw new JSONException("Encountered invalid unicode notation at " + counter + " .");
+
+			if (source.charAt(counter) >= '0' || source.charAt(counter) <= '9')
+				unicode += source.charAt(counter) - 48;
+
+			if (source.charAt(counter) >= 'A' || source.charAt(counter) <= 'F')
+				unicode += source.charAt(counter) - 65 + 10;
+
+			if (source.charAt(counter) >= 'a' || source.charAt(counter) <= 'f')
+				unicode += source.charAt(counter) - 97 + 10;
+
+			
+		}
+				
+		return (char) unicode;
+	}
+
 	private char getEscapedCharacter(char escaped) {
 		switch (escaped) {
 		case 'f':
@@ -40,6 +65,8 @@ class JSONTokenizer {
 			return '\\';
 		case '"':
 			return '"';
+		case 'u':
+			return unicode();
 
 		default:
 			return 0;
