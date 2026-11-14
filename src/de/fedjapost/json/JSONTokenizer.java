@@ -161,6 +161,26 @@ class JSONTokenizer {
 			advanceCounter();
 		}
 
+		if (source.charAt(counter) == 'e' || source.charAt(counter) == 'E') {
+			advanceCounter();
+			int exp = 0;
+			boolean division = false;
+			if (source.charAt(counter) == '-') {
+				division = true;
+				advanceCounter();
+			}
+
+			while (counter < source.length() && Character.isDigit(source.charAt(counter))) {
+				exp *= 10;
+				exp += source.charAt(counter) - '0';
+				advanceCounter();
+			}
+			if (division)
+				exp = -exp;
+
+			value = value * Math.pow(10, exp);
+		}
+
 		if (negative)
 			value = -value;
 
